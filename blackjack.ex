@@ -24,17 +24,27 @@ defmodule Blackjack do
 
   def game(deck, chip_count) do
     response = IO.gets "\nWhat would you like to bet on this game? "
-    bet = String.rstrip(response) |> String.to_integer
-    #need to add case for when it is not number
-    case bet do
-      is_integer when bet > chip_count and bet > 0 ->
+    bet = String.rstrip(response) |> Integer.parse
+    number =
+      case bet do
+        :error ->
+          :error
+        _ ->
+          elem(bet,0)
+      end
+
+    case number do
+      :error ->
+        IO.puts "\nPlease enter a number greater than zero"
+        Blackjack.game(deck, chip_count)
+      { _ , ""} when number > chip_count and number > 0 ->
         IO.puts "\nYour total chip count is #{chip_count}, please make a bet equal or less to that value"
         Blackjack.game(deck, chip_count)
-      is_integer when bet > 0 ->
+      { _ , ""} when number > 0 ->
         [player_hand, deck] = Deck.deal_two(deck)
         [house_hand, deck] = Deck.deal_two(deck)
 
-        Blackjack.dealer_prompt(deck, player_hand, house_hand, bet, chip_count)
+        Blackjack.dealer_prompt(deck, player_hand, house_hand, number, chip_count)
       _ ->
         IO.puts "\nPlease enter a number greater than zero"
         Blackjack.game(deck, chip_count)
@@ -117,11 +127,19 @@ defmodule Blackjack do
     if chip_count > 0 do
       IO.puts "Would you like to play again?"
       game_start_response = IO.gets "Yes or No "
-
-      if String.rstrip(game_start_response) |> String.capitalize == "Yes" do
-        Blackjack.game(deck, chip_count)
-      else
-        IO.puts "\nThanks for playing, you left the table with #{chip_count} chips!"
+      response = String.rstrip(game_start_response) |> String.capitalize
+      case response do
+        "Yes" ->
+          game(deck, chip_count)
+        "Y" ->
+          game(deck, chip_count)
+        "No" ->
+          IO.puts "\nThanks for playing, you left the table with #{chip_count} chips!"
+        "N" ->
+          IO.puts "\nThanks for playing, you left the table with #{chip_count} chips!"
+        _ ->
+          IO.puts "\nLets try this again..."
+          Blackjack.sit_at_table
       end
     else
       "You're out of chips! Come back with more to play again."
