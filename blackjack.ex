@@ -5,16 +5,12 @@ defmodule Blackjack do
     IO.puts "Why hello there, I see that you have #{chip_count} chips. Would you like to play a game of Blackjack?"
     game_start_response = IO.gets "Yes or No "
     response = String.rstrip(game_start_response) |> String.capitalize
+    
     case response do
-      "Yes" ->
+      _ when response === "Yes" or response === "Y" ->
         deck = Deck.create_deck |> Deck.shuffle
         game(deck, chip_count)
-      "Y" ->
-        deck = Deck.create_deck |> Deck.shuffle
-        game(deck, chip_count)
-      "No" ->
-        IO.puts "\nGoodbye"
-      "N" ->
+      _ when response === "No" or response === "N" ->
         IO.puts "\nGoodbye"
       _ ->
         IO.puts "\nLets try this again..."
